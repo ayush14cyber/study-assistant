@@ -1,0 +1,20 @@
+# Dependencies
+node_modules/
+backend/node_modules/
+
+# Build output
+dist/
+
+# Environment files - NEVER commit these
+.env
+backend/.env
+
+# Temp scripts
+write_flashcard.js
+fix.js
+patch_app.js
+patch_app2.js
+
+# OS files
+.DS_Store
+Thumbs.db
