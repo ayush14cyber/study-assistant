@@ -1,13 +1,12 @@
-import { useState } from "react"
+import { useState } from 'react'
 
 function FlashCard({ card }) {
   const [flipped, setFlipped] = useState(false)
 
-  const cls = flipped ? "flip-card-inner flipped" : "flip-card-inner"
-
   return (
-    <div className="flip-card" onClick={() => setFlipped(!flipped)}>
-      <div className={cls}>
+    <div className="flip-card" onClick={() => setFlipped(f => !f)} role="button" tabIndex={0}
+      onKeyDown={e => e.key === 'Enter' || e.key === ' ' ? setFlipped(f => !f) : null}>
+      <div className={`flip-card-inner${flipped ? ' flipped' : ''}`}>
         <div className="flip-card-face flip-card-front">
           <span className="card-label">Question</span>
           <p className="card-text">{card.front}</p>

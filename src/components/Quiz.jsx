@@ -1,18 +1,18 @@
 import { useState } from 'react'
 
 function Quiz({ cards, onExit }) {
-  const [deck, setDeck] = useState(cards)
-  const [index, setIndex] = useState(0)
+  const [deck, setDeck]           = useState(cards)
+  const [index, setIndex]         = useState(0)
   const [showAnswer, setShowAnswer] = useState(false)
-  const [wrong, setWrong] = useState([])
-  const [correct, setCorrect] = useState(0)
-  const [done, setDone] = useState(false)
-  const [round, setRound] = useState(1)
+  const [wrong, setWrong]         = useState([])
+  const [correct, setCorrect]     = useState(0)
+  const [done, setDone]           = useState(false)
+  const [round, setRound]         = useState(1)
 
   const current = deck[index]
 
   function handleAnswer(isCorrect) {
-    const newWrong = isCorrect ? wrong : [...wrong, current]
+    const newWrong   = isCorrect ? wrong : [...wrong, current]
     const newCorrect = isCorrect ? correct + 1 : correct
 
     if (index + 1 < deck.length) {
@@ -22,7 +22,6 @@ function Quiz({ cards, onExit }) {
       setShowAnswer(false)
     } else {
       if (newWrong.length > 0) {
-        // Re-test wrong cards in a new round
         setDeck(newWrong)
         setIndex(0)
         setWrong([])
@@ -36,14 +35,25 @@ function Quiz({ cards, onExit }) {
     }
   }
 
+  const pct = Math.round((correct / deck.length) * 100)
+
   if (done) {
     return (
       <div className="quiz-section">
         <div className="quiz-done">
-          <h2>Quiz Complete!</h2>
-          <div className="score">{correct}/{deck.length}</div>
-          <p>Round {round} — {correct} of {deck.length} correct.</p>
-          <button className="btn-primary" onClick={onExit}>Back to Flashcards</button>
+          <div className="quiz-done-icon">
+            {pct === 100 ? '🎉' : pct >= 60 ? '👍' : '📖'}
+          </div>
+          <h2>Quiz Complete</h2>
+          <div className="score-text">{correct}/{deck.length}</div>
+          <p>
+            {pct === 100
+              ? 'Perfect score — you nailed every card!'
+              : `Round ${round} · ${pct}% correct. Keep going!`}
+          </p>
+          <button className="btn-generate" style={{ marginTop: '0.5rem' }} onClick={onExit}>
+            ← Back to Flashcards
+          </button>
         </div>
       </div>
     )
@@ -51,16 +61,18 @@ function Quiz({ cards, onExit }) {
 
   return (
     <div className="quiz-section">
+
       {round > 1 && (
-        <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem' }}>
-          Round {round} — re-testing {deck.length} wrong {deck.length === 1 ? 'card' : 'cards'}
-        </p>
+        <div className="quiz-round-tag">
+          Round {round} — re-testing {deck.length} {deck.length === 1 ? 'card' : 'cards'}
+        </div>
       )}
 
-      <p className="card-counter">Card {index + 1} of {deck.length}</p>
-
-      <div className="progress-bar" style={{ width: '100%', maxWidth: '560px' }}>
-        <div className="progress-fill" style={{ width: ((index + 1) / deck.length * 100) + '%' }} />
+      <div className="counter-row" style={{ maxWidth: 580 }}>
+        <span className="card-counter">Card {index + 1} of {deck.length}</span>
+        <div className="progress-bar">
+          <div className="progress-fill" style={{ width: ((index + 1) / deck.length * 100) + '%' }} />
+        </div>
       </div>
 
       <div className="quiz-question-card">
@@ -69,8 +81,8 @@ function Quiz({ cards, onExit }) {
       </div>
 
       {!showAnswer ? (
-        <button className="btn-show-answer" onClick={() => setShowAnswer(true)}>
-          Show Answer
+        <button className="btn-reveal" onClick={() => setShowAnswer(true)}>
+          Reveal Answer
         </button>
       ) : (
         <>
@@ -79,8 +91,12 @@ function Quiz({ cards, onExit }) {
             <p>{current.back}</p>
           </div>
           <div className="quiz-actions">
-            <button className="btn-correct" onClick={() => handleAnswer(true)}>Got it</button>
-            <button className="btn-wrong" onClick={() => handleAnswer(false)}>Review again</button>
+            <button className="btn-correct" onClick={() => handleAnswer(true)}>
+              ✓ Got it
+            </button>
+            <button className="btn-wrong" onClick={() => handleAnswer(false)}>
+              ↩ Review again
+            </button>
           </div>
         </>
       )}
