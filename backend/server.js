@@ -12,7 +12,36 @@ app.use(cors({ origin: allowedOrigin }))
 
 const GROQ_API_URL = 'https://api.groq.com/openai/v1/chat/completions'
 
-const SYSTEM_PROMPT = 'You are a study assistant. The user gives you notes or a topic. Return ONLY a valid JSON object, no markdown, no code fences, no explanation. The JSON must follow this exact shape: {"title":"short topic title","flashcards":[{"id":1,"front":"question or term","back":"answer or definition"}]}. Generate 5 to 8 flashcards. Return ONLY the JSON.'
+const SYSTEM_PROMPT = `You are a study assistant. The user gives you notes or a topic.
+IMPORTANT: First decide whether the input is meaningful enough to study from.
+If the input is gibberish, random characters, keyboard mashing, random letter sequences, completely unrecognisable nonsense, or contains no real words or recognisable concepts in any language, return EXACTLY this JSON and nothing else:
+{"invalid":true}
+If the input IS meaningful (real words, a real topic, real notes — even brief ones), return ONLY a valid JSON object with this exact shape:
+{"title":"short topic title","flashcards":[{"id":1,"front":"question or term","back":"answer or definition"}]}
+Generate 5 to 8 flashcards. No markdown, no code fences, no explanation. Return ONLY the JSON.`
+
+// Fast local heuristic: detects obvious gibberish before wasting an API call.
+// Checks vowel ratio and average word length — real language has ~30-45% vowels
+// and most words are 2-12 chars. Pure keyboard mashing fails both.
+function looksLikeGibberish(text) {
+  const words = text.trim().split(/\s+/)
+  // If it's a single long token with almost no vowels, it's gibberish
+  if (words.length === 1) {
+    const word = words[0]
+    if (word.length < 3) return false // too short to judge
+    const vowels = (word.match(/[aeiouAEIOU]/g) || []).length
+    const vowelRatio = vowels / word.length
+    return word.length > 6 && vowelRatio < 0.15
+  }
+  // Multi-word: check average vowel ratio across all words
+  const allChars = words.join('')
+  if (allChars.length < 4) return false
+  const vowels = (allChars.match(/[aeiouAEIOU]/g) || []).length
+  const vowelRatio = vowels / allChars.length
+  const avgWordLen = allChars.length / words.length
+  // Gibberish typically has < 10% vowels AND very long average word length
+  return vowelRatio < 0.10 && avgWordLen > 7
+}
 
 // Extract JSON even if the AI wraps it in markdown code fences
 function extractJSON(text) {
@@ -33,6 +62,11 @@ app.post('/api/generate', async (req, res) => {
 
   if (!text || text.trim().length === 0) {
     return res.status(400).json({ error: 'Please provide some text or a topic.' })
+  }
+
+  // Fast local gibberish check — catches obvious keyboard mashing instantly
+  if (looksLikeGibberish(text)) {
+    return res.status(400).json({ error: 'The input does not appear to be meaningful text. Please enter a real topic or paste your notes.' })
   }
 
   try {
@@ -67,6 +101,11 @@ app.post('/api/generate', async (req, res) => {
       parsed = extractJSON(content)
     } catch {
       throw new Error('AI returned malformed JSON. Please try again.')
+    }
+
+    // AI-layer gibberish detection: model returns {"invalid":true} for nonsense input
+    if (parsed.invalid === true) {
+      return res.status(400).json({ error: 'The input does not seem to be meaningful text. Please enter a real topic, a subject name, or paste your actual notes.' })
     }
 
     if (!Array.isArray(parsed.flashcards) || parsed.flashcards.length === 0) {
