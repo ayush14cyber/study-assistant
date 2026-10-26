@@ -1,18 +1,26 @@
-import { useState, useRef } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import FlashCard from './components/FlashCard'
 import Quiz from './components/Quiz'
 
 const API_URL = (import.meta.env.VITE_API_URL || '').replace(/\/+$/, '')
 
 function App() {
-  const [input, setInput]       = useState('')
-  const [status, setStatus]     = useState('idle')   // idle | loading | error | success
-  const [error, setError]       = useState('')
-  const [title, setTitle]       = useState('')
-  const [cards, setCards]       = useState([])
-  const [mode, setMode]         = useState('browse') // browse | quiz
+  const [input, setInput]         = useState('')
+  const [status, setStatus]       = useState('idle')   // idle | loading | error | success
+  const [error, setError]         = useState('')
+  const [title, setTitle]         = useState('')
+  const [cards, setCards]         = useState([])
+  const [mode, setMode]           = useState('browse') // browse | quiz
   const [cardIndex, setCardIndex] = useState(0)
-  const requestIdRef            = useRef(0)
+  const requestIdRef              = useRef(0)
+
+  // Dark mode — persisted to localStorage
+  const [dark, setDark] = useState(() => localStorage.getItem('theme') === 'dark')
+
+  useEffect(() => {
+    document.documentElement.setAttribute('data-theme', dark ? 'dark' : 'light')
+    localStorage.setItem('theme', dark ? 'dark' : 'light')
+  }, [dark])
 
   async function handleGenerate() {
     if (!input.trim()) return
@@ -47,7 +55,18 @@ function App() {
   const next = () => setCardIndex(i => Math.min(cards.length - 1, i + 1))
 
   return (
-    <div className="app">
+    <>
+      {/* ── Fixed dark/light toggle ── */}
+      <button
+        className="theme-toggle"
+        onClick={() => setDark(d => !d)}
+        title={dark ? 'Switch to light mode' : 'Switch to dark mode'}
+        aria-label={dark ? 'Switch to light mode' : 'Switch to dark mode'}
+      >
+        {dark ? '☀️' : '🌙'}
+      </button>
+
+      <div className="app">
 
       {/* ── Header ── */}
       <header className="header">
@@ -166,6 +185,7 @@ function App() {
         </>
       )}
     </div>
+    </>
   )
 }
 

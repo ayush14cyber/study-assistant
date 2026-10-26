@@ -38,6 +38,7 @@ body {
   font-family: 'Inter', sans-serif;
   min-height: 100vh;
   -webkit-font-smoothing: antialiased;
+  transition: background 0.3s ease, color 0.3s ease;
   /* Warm parchment texture */
   background-image:
     radial-gradient(ellipse 80% 50% at 50% -10%, rgba(192,57,43,0.07) 0%, transparent 60%),
@@ -659,3 +660,84 @@ button:active { transform: scale(0.97); }
   .quiz-actions { flex-direction: column; }
   .btn-correct, .btn-wrong { padding: 0.85rem; }
 }
+
+/* ── Dark Mode ── */
+[data-theme="dark"] {
+  --bg:          #0e0c0b;
+  --bg2:         #140f0d;
+  --surface:     #1c1512;
+  --surface2:    #241a16;
+  --surface3:    #2d201a;
+  --border:      rgba(255,255,255,0.07);
+  --border-lit:  rgba(220,80,60,0.4);
+  --accent:      #e05540;
+  --accent2:     #f09070;
+  --accent-glow: rgba(220,85,60,0.22);
+  --text:        #f0e8e4;
+  --text-sub:    #a88878;
+  --text-dim:    #6a4a40;
+  --success:     #4ade80;
+  --success-bg:  rgba(74,222,128,0.1);
+  --danger:      #f87171;
+  --danger-bg:   rgba(248,113,113,0.1);
+}
+
+[data-theme="dark"] body,
+[data-theme="dark"] {
+  background-image:
+    radial-gradient(ellipse 80% 50% at 50% -10%, rgba(220,85,60,0.1) 0%, transparent 60%),
+    linear-gradient(rgba(255,255,255,0.018) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,0.018) 1px, transparent 1px);
+  background-size: 100% 100%, 40px 40px, 40px 40px;
+}
+
+[data-theme="dark"] .header h1 { color: #fff; }
+
+[data-theme="dark"] .input-card {
+  box-shadow: 0 2px 16px rgba(0,0,0,0.4);
+}
+
+[data-theme="dark"] .flip-card-front {
+  box-shadow: 0 4px 24px rgba(0,0,0,0.45);
+}
+
+[data-theme="dark"] .flip-card-back {
+  box-shadow: 0 4px 24px rgba(0,0,0,0.45);
+}
+
+[data-theme="dark"] .flip-card-back .card-label { color: var(--accent2); }
+
+[data-theme="dark"] .quiz-done {
+  box-shadow: 0 4px 32px rgba(0,0,0,0.4);
+}
+
+[data-theme="dark"] .quiz-done h2 { color: #fff; }
+
+/* ── Theme Toggle Button ── */
+.theme-toggle {
+  position: fixed;
+  top: 1.1rem;
+  right: 1.25rem;
+  z-index: 100;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  color: var(--text-sub);
+  font-size: 1.05rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.1);
+  transition: background 0.2s, border-color 0.2s, box-shadow 0.2s, transform 0.15s;
+}
+
+.theme-toggle:hover {
+  background: var(--surface2);
+  border-color: var(--border-lit);
+  transform: scale(1.1);
+}
+
+.theme-toggle:active { transform: scale(0.95); }
