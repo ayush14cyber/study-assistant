@@ -551,6 +551,24 @@ All design tokens are defined as CSS custom properties in `src/index.css`:
 
 ---
 
+## Time Spent
+
+**Total: ~7 hours**
+
+| Area | Time | What was done |
+|---|---|---|
+| Project setup & tooling | 30 min | Vite + React scaffold, concurrently dev script, backend package.json, `.env`, `.gitignore`, Render/Vercel config |
+| Backend — Express server & Groq integration | 1 hr 15 min | `/api/generate` route, Groq API call, system prompt design, CORS config, `/health` endpoint |
+| `extractJSON` + input validation | 45 min | Multi-strategy JSON parser (3 fallbacks), gibberish heuristic (`looksLikeGibberish`), AI-layer `{invalid:true}` detection |
+| Frontend — App state & fetch logic | 1 hr | All React state (`input`, `status`, `error`, `title`, `cards`, `mode`, `cardIndex`), `requestIdRef` stale-guard, error handling |
+| FlashCard component & CSS 3D flip | 45 min | Perspective + `rotateY` animation, `backface-visibility`, front/back faces, keyboard accessibility |
+| Quiz component — multi-round engine | 1 hr | Self-assessment loop, wrong-card re-test queue, round counter, score screen, percentage calculation |
+| UI design & CSS design system | 1 hr | CSS custom properties, rose/blush palette, editorial header, input card, pill tabs, progress bar, responsive layout |
+| Deployment & debugging | 30 min | Vercel env vars, Render env vars, CORS trailing-slash fix, Vite proxy config |
+| README documentation | 15 min | Full project documentation — architecture, API reference, troubleshooting, deployment guide |
+
+---
+
 ## AI Usage
 
 Groq (`openai/gpt-oss-120b`) generates flashcards from user input. I used **Antigravity** (AI coding assistant) to help scaffold boilerplate. I wrote and understand all the component logic, state design, error handling, the `requestIdRef` stale-guard, and the multi-strategy `extractJSON` approach. The code was manually tested for both happy paths and all documented failure cases.
